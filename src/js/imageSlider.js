@@ -2,6 +2,14 @@ export default class ImageSlider {
   #currentPosition = 0; // 현재 슬라이드 이미지 번호
   #sliderNumber = 0;
   #sliderWidth = 0;
+  #intervalId;
+  #autoPlay = true;
+  sliderWrapEl;
+  sliderListEl;
+  nextBtnEl;
+  prevBtnEl;
+  indicatorWrapEl;
+  controlWrapEl;
 
   constructor() {
     this.assignElement();
@@ -10,6 +18,7 @@ export default class ImageSlider {
     this.initSliderListWidth();
     this.addEvent();
     this.createIndicator();
+    this.initAutoPlay();
   }
 
   assignElement() {
@@ -18,6 +27,7 @@ export default class ImageSlider {
     this.nextBtnEl = this.sliderWrapEl.querySelector('#next');
     this.prevBtnEl = this.sliderWrapEl.querySelector('#previous');
     this.indicatorWrapEl = this.sliderWrapEl.querySelector('#indicator-wrap');
+    this.controlWrapEl = this.sliderWrapEl.querySelector('#control-wrap');
   }
 
   initSliderNumber() {
@@ -34,6 +44,10 @@ export default class ImageSlider {
     }px`;
   }
 
+  initAutoPlay() {
+    this.#intervalId = setInterval(this.moveToRight.bind(this), 3000);
+  }
+
   addEvent() {
     this.nextBtnEl.addEventListener('click', this.moveToRight.bind(this));
     this.prevBtnEl.addEventListener('click', this.moveToLeft.bind(this));
@@ -41,6 +55,7 @@ export default class ImageSlider {
       'click',
       this.onClickIndicator.bind(this),
     );
+    this.controlWrapEl.addEventListener('click', this.togglePlay.bind(this));
   }
 
   moveToRight(event) {
@@ -54,6 +69,10 @@ export default class ImageSlider {
       this.#sliderWidth * this.#currentPosition
     }px`;
 
+    if (this.#autoPlay) {
+      clearInterval(this.#intervalId);
+      this.#intervalId = setInterval(this.moveToRight.bind(this), 3000);
+    }
     this.setIndicator();
   }
 
@@ -66,6 +85,11 @@ export default class ImageSlider {
     this.sliderListEl.style.left = `-${
       this.#sliderWidth * this.#currentPosition
     }px`;
+
+    if (this.#autoPlay) {
+      clearInterval(this.#intervalId);
+      this.#intervalId = setInterval(this.moveToRight.bind(this), 3000);
+    }
 
     this.setIndicator();
   }
@@ -99,6 +123,20 @@ export default class ImageSlider {
         this.#sliderWidth * this.#currentPosition
       }px`;
       this.setIndicator();
+    }
+  }
+
+  togglePlay(event) {
+    if (event.target.dataset.status === 'play') {
+      this.#autoPlay = true;
+      this.controlWrapEl.classList.add('play');
+      this.controlWrapEl.classList.remove('pause');
+      this.initAutoPlay();
+    } else if (event.target.dataset.status === 'pause') {
+      this.#autoPlay = false;
+      this.controlWrapEl.classList.add('pause');
+      this.controlWrapEl.classList.remove('play');
+      clearInterval(this.#intervalId);
     }
   }
 }
