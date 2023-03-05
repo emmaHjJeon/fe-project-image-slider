@@ -33,7 +33,11 @@ module.exports = {
         test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
-    ],
+      {
+        test: /\.jpeg$/, 
+        type: 'asset/inline'
+      }
+    ]
   },
   optimization: {
     minimizer: [
